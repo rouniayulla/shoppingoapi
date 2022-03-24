@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 
 exports.signup = (req, res, next) => {
 	const error = validationResult(req);
+	// console.log(error);
 	if (!error.isEmpty()) {
 		const error = new Error('enter valid things');
 		error.statusCode = 422;
@@ -60,6 +61,7 @@ exports.signup = (req, res, next) => {
 /////////////////////////////////////LOGIN controlller///////////////////////////////////////
 exports.login = (req, res, next) => {
 	const error = validationResult(req);
+	console.log(error);
 	if (!error.isEmpty()) {
 		const error = new Error('enter valid things');
 		error.statusCode = 422;

@@ -26,6 +26,6 @@ app.use('/managment', managmentRoute);
 
 mongoose.connect(process.env.MONGODB_URI, (result) => {
 	app.listen(8080, () => {
-		console.log('heeeesy i am on port 8080');
+		console.log('heeeey i am on port 8080');
 	});
 });
