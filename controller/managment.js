@@ -24,7 +24,7 @@ exports.addPayment = (req, res, next) => {
 	});
 	payment.save();
 
-	User.findById(req.user.user)
+	User.findById(req.userId)
 		.then((user) => {
 			user.payment.push(payment._id);
 			user.save();
@@ -37,7 +37,7 @@ exports.addPayment = (req, res, next) => {
 };
 
 exports.getpayments = async (req, res, next) => {
-	const user = await User.findById(req.user.user)
+	const user = await User.findById(req.userId)
 		.then(async (user) => {
 			const arrayPayments = user.payment;
 			var all = [];
@@ -70,7 +70,7 @@ exports.getpayments = async (req, res, next) => {
 			err.statusCode = 422;
 			throw err;
 		});
-	const user1 = User.findById(req.user.user).then((user) => {
+	const user1 = User.findById(req.userId).then((user) => {
 		var arrayToString = JSON.stringify(Object.assign({}, user.showpayment)); // convert array to string
 		var stringToJsonObject = JSON.parse(arrayToString); // convert string to json object
 
@@ -111,7 +111,7 @@ exports.addPaymentReq = (req, res, next) => {
 		everyPaidValueRepeater: everyPaidValueRepeater
 	});
 	paymentReq.save();
-	User.findById(req.user.user)
+	User.findById(req.userId)
 		.then((user) => {
 			user.paymentReq.push(paymentReq._id);
 			user.save();
