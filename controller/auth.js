@@ -42,7 +42,10 @@ exports.signup = (req, res, next) => {
 								error.statusCode = 422;
 								throw error;
 							}
-							res.status(201).header('authToken', token).json({ message: 'user Created!!', user: user });
+							res
+								.status(201)
+								.header('authToken', token)
+								.json({ message: 'user Created!!', user: user, token });
 						});
 					});
 			})
@@ -93,10 +96,7 @@ exports.login = (req, res, next) => {
 								error.statusCode = 422;
 								throw error;
 							}
-							res
-								.status(201)
-								.header('authToken', token)
-								.json({ message: 'user Login!!', userId: userId });
+							res.status(201).json({ message: 'user Login!!', userId: userId, token: token });
 						});
 					})
 					.catch((err) => {
