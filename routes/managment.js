@@ -15,7 +15,7 @@ router.post(
 		check('name', 'name is required').not().isEmpty(),
 		check('value', 'value is required').not().isEmpty(),
 		check('type', 'type is required').not().isEmpty()
-		// check('Date', 'Date is required').not().isEmpty()
+	
 	],
 	managmentController.addPayment
 );
@@ -26,6 +26,7 @@ router.post(
 	[ check('name', 'name is required').not().isEmpty(), check('value', 'value is required').not().isEmpty() ],
 	managmentController.addPaymentReq
 );
+// router for post addicome
 router.post(
 	'/addIncome',
 	isAuth,
@@ -35,5 +36,7 @@ router.post(
 
 //router for get all payments
 router.get('/getallpayments', isAuth, managmentController.getpayments);
+//router for get all reqpayments
+router.get('/getallreqpayments', isAuth, managmentController.getreqpayments);
 
 module.exports = router;

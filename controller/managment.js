@@ -3,7 +3,9 @@ const PaymentReq = require('../model/paymentReq');
 const User = require('../model/user');
 const { validationResult } = require('express-validator');
 const payment = require('../model/payment');
-
+//@router post
+//@desc   enter full income
+//@view   public
 exports.addIncome = (req, res, next) => {
 	const error = validationResult(req);
 	if (!error.isEmpty()) {
@@ -24,7 +26,9 @@ exports.addIncome = (req, res, next) => {
 			throw err;
 		});
 };
-
+//@router post
+//@desc   add a new payment 
+//@view   public
 exports.addPayment = (req, res, next) => {
 	const error = validationResult(req);
 	if (!error.isEmpty()) {
@@ -61,11 +65,14 @@ exports.addPayment = (req, res, next) => {
 			throw err;
 		});
 };
-
+//@router get
+//@desc   get all payments
+//@view   public
 exports.getpayments = async (req, res, next) => {
 	const user = await User.findById(req.userId)
 		.then(async (user) => {
-			const arrayPayments = user.payment;
+			const arrayPayments = user.payments;
+			console.log(arrayPayments)
 			var all = [];
 			var all2 = [];
 			async function t() {
@@ -75,7 +82,7 @@ exports.getpayments = async (req, res, next) => {
 						.then(async (result) => {
 							await User.findById(user._id)
 								.then(async (resu1) => {
-									const flog = await resu1.showpayment.some((id) => id.name === result.name);
+									const flog = await resu1.showpayment.some((id) => id._id.toString() === result._id.toString());
 									if (!flog)
 										await User.findByIdAndUpdate(
 											user._id,
@@ -98,12 +105,14 @@ exports.getpayments = async (req, res, next) => {
 		});
 	const user1 = User.findById(req.userId).then((user) => {
 		var arrayToString = JSON.stringify(Object.assign({}, user.showpayment)); // convert array to string
-		var stringToJsonObject = JSON.parse(arrayToString); // convert string to json object
+		var  JSONFORPAYMENT = JSON.parse(arrayToString); // convert string to json object
 
-		res.json(stringToJsonObject);
+		res.json( JSONFORPAYMENT);
 	});
 };
-
+//@router post
+//@desc   add a new reqpayment
+//@view   public
 exports.addPaymentReq = (req, res, next) => {
 	const error = validationResult(req);
 	if (!error.isEmpty()) {
@@ -147,4 +156,47 @@ exports.addPaymentReq = (req, res, next) => {
 			throw err;
 		});
 	res.status(201).json({ message: 'user payment Required added' });
+};
+//@router get
+//@desc   get all reqapayments
+//@view   public
+exports.getreqpayments = async (req, res, next) => {
+	const user = await User.findById(req.userId)
+		.then(async (user) => {
+			const arrayReqPayments = user.	paymentsReq;
+	
+			async function t() {
+				for (let i in arrayReqPayments) {
+					var id = await arrayReqPayments[i].toString();
+					await PaymentReq.findById(id)
+						.then(async (result) => {
+							await User.findById(user._id)
+								.then(async (resu1) => {
+									const flog = await resu1.showreqpayment.some((id) => id._id.toString() === result._id.toString());
+									if (!flog)
+										await User.findByIdAndUpdate(
+											user._id,
+											{ $push: { showpayment: result } },
+											async function(err, managerparent) {
+												if (err) throw err;
+											}
+										);
+								})
+								.catch((err) => {});
+						})
+						.catch((err) => {});
+				}
+			}
+			await t();
+		})
+		.catch((err) => {
+			err.statusCode = 422;
+			throw err;
+		});
+	const user1 = User.findById(req.userId).then((user) => {
+		var arrayToString = JSON.stringify(Object.assign({}, user.showreqpayment)); // convert array to string
+		var  JSONFORPAYMENT = JSON.parse(arrayToString); // convert string to json object
+
+		res.json( JSONFORPAYMENT);
+	});
 };

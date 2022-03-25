@@ -43,6 +43,10 @@ const userShcema = new Shcema({
 			type: Shcema.Types.ObjectId,
 			ref: 'PaymentReq'
 		}
+	],
+	showreqpayment: [ { type: Object,
+	default:[] },
+		
 	]
 });
 module.exports = mongoose.model('User', userShcema);
