@@ -19,18 +19,26 @@ const userShcema = new Shcema({
 		type: Number,
 		default: 0
 	},
+	totalBalance: {
+		type: Number,
+		default: 0
+	},
+	totalPayments: {
+		type: Number,
+		default: 0
+	},
 	status: {
 		type: Boolean,
 		default: false
 	},
-	payment: [
+	payments: [
 		{
 			type: Shcema.Types.ObjectId,
 			ref: 'Payment'
 		}
 	],
 	showpayment: [ { type: Object } ],
-	paymentReq: [
+	paymentsReq: [
 		{
 			type: Shcema.Types.ObjectId,
 			ref: 'PaymentReq'

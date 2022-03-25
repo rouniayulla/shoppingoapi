@@ -21,10 +21,16 @@ router.post(
 );
 //router for Post Payment Require
 router.post(
-	'/addPaymnetReq',
+	'/addPaymentReq',
 	isAuth,
 	[ check('name', 'name is required').not().isEmpty(), check('value', 'value is required').not().isEmpty() ],
 	managmentController.addPaymentReq
+);
+router.post(
+	'/addIncome',
+	isAuth,
+	[ check('value', 'name is required').not().isEmpty() ],
+	managmentController.addIncome
 );
 
 //router for get all payments

@@ -4,6 +4,27 @@ const User = require('../model/user');
 const { validationResult } = require('express-validator');
 const payment = require('../model/payment');
 
+exports.addIncome = (req, res, next) => {
+	const error = validationResult(req);
+	if (!error.isEmpty()) {
+		const error = new Error('enter valid things');
+		error.statusCode = 422;
+		throw error;
+	}
+	const value = parseInt(req.body.value);
+	User.findById(req.userId)
+		.then((user) => {
+			user.income += value;
+			user.totalBalance += value;
+			user.save();
+			res.status(201).json({ msg: 'income is added' });
+		})
+		.catch((err) => {
+			err.statusCode = 422;
+			throw err;
+		});
+};
+
 exports.addPayment = (req, res, next) => {
 	const error = validationResult(req);
 	if (!error.isEmpty()) {
@@ -12,28 +33,33 @@ exports.addPayment = (req, res, next) => {
 		throw error;
 	}
 	const name = req.body.name;
-	const value = +req.body.value;
+	const value = parseInt(req.body.value);
 	const type = req.body.type;
 	const date = req.body.date;
-
-	const payment = new Payment({
-		name: name,
-		value: value,
-		type: type,
-		date: date
-	});
-	payment.save();
-
 	User.findById(req.userId)
 		.then((user) => {
-			user.payment.push(payment._id);
-			user.save();
+			if (value > user.totalBalance) {
+				res.status(401).json({ msg: 'you cant make payment the cost of it more than the total Balance' });
+			} else {
+				const payment = new Payment({
+					name: name,
+					value: value,
+					type: type,
+					date: date
+				});
+
+				payment.save();
+				user.payments.push(payment._id);
+				user.totalBalance -= value;
+				user.totalPayments += value;
+				user.save();
+				res.status(201).json({ message: 'user payment added' });
+			}
 		})
 		.catch((err) => {
 			err.statusCode = 422;
 			throw err;
 		});
-	res.status(201).json({ message: 'user payment added' });
 };
 
 exports.getpayments = async (req, res, next) => {
@@ -113,7 +139,7 @@ exports.addPaymentReq = (req, res, next) => {
 	paymentReq.save();
 	User.findById(req.userId)
 		.then((user) => {
-			user.paymentReq.push(paymentReq._id);
+			user.paymentsReq.push(paymentReq._id);
 			user.save();
 		})
 		.catch((err) => {
