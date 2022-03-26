@@ -37,16 +37,37 @@ const userShcema = new Shcema({
 			ref: 'Payment'
 		}
 	],
-	showpayment: [ { type: Object } ],
 	paymentsReq: [
 		{
 			type: Shcema.Types.ObjectId,
 			ref: 'PaymentReq'
 		}
 	],
+	showpayment: [ { type: Object } ],
 	showreqpayment: [ { type: Object,
 	default:[] },
-		
-	]
+	],
+	showfivepayment: [ { type: Object,
+		default:[]
+	 } ],
+	showfivereqpayment: [ { type: Object,
+	default:[] },
+	],
+    dashboard:[
+		{
+			type:Object,
+			default:[]
+		}
+	],
+	food:{
+		type:Number,
+		default:0
+	},
+	clothes:{
+		type:Number,
+		default:0
+	}
+
+
 });
 module.exports = mongoose.model('User', userShcema);

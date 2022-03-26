@@ -2,7 +2,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 module.exports = (req, res, next) => {
-	const token = req.get('Authorization').split(' ')[1];
+	const token = req.get('Authorization').split(' ')[2];
 	// console.log(token)
 	if (!token) {
 		res.status(422).json({ message: 'no token access' });
