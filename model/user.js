@@ -41,32 +41,7 @@ const userShcema = new Shcema({
 		{
 			type: Shcema.Types.ObjectId,
 			ref: 'PaymentReq'
-		}
-	],
-	showpayment: [ { type: Object } ],
-	showreqpayment: [ { type: Object,
-	default:[] },
-	],
-	showfivepayment: [ { type: Object,
-		default:[]
-	 } ],
-	showfivereqpayment: [ { type: Object,
-	default:[] },
-	],
-    dashboard:[
-		{
-			type:Object,
-			default:[]
-		}
-	],
-	food:{
-		type:Number,
-		default:0
-	},
-	clothes:{
-		type:Number,
-		default:0
-	}
+		}]
 
 
 });

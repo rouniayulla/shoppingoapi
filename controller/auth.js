@@ -44,7 +44,6 @@ exports.signup = (req, res, next) => {
 							}
 							res
 								.status(201)
-								.header('authToken', token)
 								.json({ message: 'user Created!!', user: user, token });
 						});
 					});
