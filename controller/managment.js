@@ -9,6 +9,87 @@ const categories={
 	clothes:0,
 	others:0
 }
+function sortDate(arraypayments,typedate)
+{
+	// console.log(arraypayments);
+	if(typedate==="high"){
+	arraypayments.sort((a,b)=>{
+		if(new Date(a.date)<new Date(b.date))
+		return 1;
+		else 
+		if(new Date(a.date)>new Date(b.date))
+		return -1;
+		else 
+		return 0;
+	})}
+	else
+	{
+		arraypayments.sort((a,b)=>{
+			if(new Date(a.date)>new Date(b.date))
+			return 1;
+			else 
+			if(new Date(a.date)<new Date(b.date))
+			return -1;
+			else 
+			return 0;
+		})
+
+	}
+}
+function sortValue(arraypayments,typedate)
+{
+	if(typedate==="high"){
+	arraypayments.sort((a,b)=>{
+		if((+a.value)<(+b.value))
+		return 1;
+		else 
+		if((+a.value)>(+b.value))
+		return -1;
+		else 
+		return 0;
+	})}
+	else
+	{
+		arraypayments.sort((a,b)=>{
+			if((+a.value)>(+b.value))
+			return 1;
+			else 
+			if((+a.value)<(+b.value))
+			return -1;
+			else 
+			return 0;
+		})
+
+	}
+}
+function sortDateAndValue(arraypayments,typedate,typevalue)
+{
+	
+	
+	if(typedate==="high"&&typevalue==="high"){
+	
+    	arraypayments.sort((a,b)=>{
+		if(new Date(a.date)<new Date(b.date)&&(+a.value)<(+b.value))
+		{console.log("l");return 1;}
+		else if(new Date(a.date)>new Date(b.date)&&(+a.value)>(+b.value))
+		{return -1;}
+		else return 0;
+
+
+	})}
+	else if(typedate==="low"&&typevalue==="low"){
+		arraypayments.sort((a,b)=>{
+			if(new Date(a.date)>new Date(b.date)&&(+a.value)>(+b.value))
+			return 1;
+			else if(new Date(a.date)<new Date(b.date)&&(+a.value)<(+b.value))
+			return -1;
+			else return 0;
+	
+	
+		})}
+	
+}
+
 //@router post
 //@desc   enter full income
 //@view   public
@@ -73,7 +154,6 @@ exports.addPayment = (req, res, next) => {
 			throw err;
 		});
 };
-
 //@router post
 //@desc   add a new reqpayment
 //@view   public
@@ -126,18 +206,22 @@ exports.addPaymentReq = (req, res, next) => {
 // //@view   public
 exports.getpayments= async (req,res,next)=>{
 	const pay=await User.findById(req.userId).populate("payments");
-	var arrayToString = JSON.stringify(Object.assign({}, pay.payments)); // convert array to string
-	var  JSONFORPAYMENTs = JSON.parse(arrayToString); // convert string to json object
-	res.json( JSONFORPAYMENT);
+	res.json({
+		pay:pay.payments
+
+	});
+
 }
 //@router get
 //@desc   get all reqapayments
 //@view   public
 exports.getreqpayments = async (req, res, next) => {
 	const payreq=await User.findById(req.userId).populate("paymentsReq");
-	var arrayToString = JSON.stringify(Object.assign({}, payreq.paymentsReq)); // convert array to string
-	var  JSONFORREQPAYMENTs = JSON.parse(arrayToString); // convert string to json object
-	res.json( JSONFORREQPAYMENT);
+	
+	res.json({
+		payreq:payreq.paymentsReq
+
+	});
 
 };
 //@router get
@@ -176,15 +260,110 @@ exports.getdatadashboard=async(req,res,next)=>{
 	})
     all.push({
 		totalBalance:user.totalBalance,
-		totalPayments:user.totalPaymentss,
+		totalPayments:user.totalPayments,
 		income:user.income
 	});
 	all.push(categories);
 	all.push(pay.payments.slice(0,5))
 	all.push(payreq.paymentsReq.slice(0,5))
-	var arrayToString = JSON.stringify(Object.assign({}, all)); // convert array to string
-	var  JSONDASHBOARD = JSON.parse(arrayToString); // convert string to json object
-	res.json(JSONDASHBOARD);
+	
+	res.json({dash:all});
 
 
+}
+exports.filterPayments=async (req,res,next)=>{
+	const user=await User.findById(req.userId);
+	const pay=await User.findById(req.userId).populate("payments");
+	
+	const filterbydate=req.body.filterbydate;
+	const filterbytype=req.body.filterbytype;
+	if(filterbydate==="high"&&!filterbytype)
+	{
+		sortDate(pay.payments,filterbydate);
+		res.json({
+			filterHigh:pay.payments
+		})
+
+	}
+	else if(filterbydate==="low"&&!filterbytype)
+	{
+		sortDate(pay.payments,filterbydate);
+		res.json({
+			filterHigh:pay.payments
+		})
+
+	}
+	else if(filterbytype&&!filterbydate){
+		const filterpayments=pay.payments.filter(payment=>{
+			payment.type===filterbytype
+		})
+		res.json({
+			filterpayments:filterpayments
+		})
+	}
+	else if(filterbytype&&filterbydate==="high"){
+		const filterpayments=pay.payments.filter(payment=>{
+			return payment.type===filterbytype
+		})
+		sortDate(filterpayments,filterbydate);
+		res.json({
+			filterpayments:filterpayments
+		})
+		
+	}
+	else if(filterbytype&&filterbydate==="low"){
+		// console.log(filterbytype);
+		const filterpayments=pay.payments.filter(payment=>{
+			return payment.type===filterbytype
+		})
+		sortDate(filterpayments,filterbydate);
+		res.json({
+			filterpayments:filterpayments
+		})
+		
+	}
+
+
+}
+exports.filterReqPayments=async (req,res,next)=>{
+	const payreq=await User.findById(req.userId).populate("paymentsReq");
+	const filterbydate=req.body.filterbydate;
+	const filterbyvalue=req.body.filterbyvalue;
+	if(filterbydate==="high"&&!filterbyvalue){
+		// console.log(payreq.paymentsReq)
+		sortDate(payreq.paymentsReq,filterbydate);
+		res.json({
+			filterReqPayments:payreq.paymentsReq
+		})
+	}
+	else if(filterbydate==="low"&&!filterbyvalue){
+		sortDate(payreq.paymentsReq,filterbydate);
+		res.json({
+			filterReqPayments:payreq.paymentsReq
+		})
+	}
+	else if(!filterbydate&&!filterbyvalue==="high"){
+		sortValue(payreq.paymentsReq,filterbyvalue);
+		res.json({
+			filterReqPayments:payreq.paymentsReq
+		})
+	}
+	else if(!filterbydate&&!filterbyvalue==="low"){
+		sortValue(payreq.paymentsReq,filterbyvalue);
+		res.json({
+			filterReqPayments:payreq.paymentsReq
+		})
+	}
+	else if(filterbydate==="high"&&filterbyvalue==="high"){
+		sortDateAndValue(payreq.paymentsReq,filterbydate,filterbyvalue)
+		res.json({
+			filterReqPayments:payreq.paymentsReq
+		})
+	}	else if(filterbydate==="low"&&filterbyvalue==="low"){
+		sortDateAndValue(payreq.paymentsReq,filterbydate,filterbyvalue)
+		res.json({
+			filterReqPayments:payreq.paymentsReq
+		})
+	}
+	
 }

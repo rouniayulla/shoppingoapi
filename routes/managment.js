@@ -40,5 +40,6 @@ router.get('/getallpayments', isAuth, managmentController.getpayments);
 router.get('/getallreqpayments', isAuth, managmentController.getreqpayments);
 // router for get dashboard's data
 router.get('/getdatadashboard',isAuth,managmentController.getdatadashboard);
-
+router.post('/filterpayments',isAuth,managmentController.filterPayments);
+router.post('/filterreqpayments',isAuth,managmentController.filterReqPayments);
 module.exports = router;
