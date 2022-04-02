@@ -33,7 +33,8 @@ const paymentReqShcema = new Shcema({
 	},
 	everyPaidValueRepeater: {
 		type: Number,
-		default: 0
+		default: 0,
+		
 	}
 });
 module.exports = mongoose.model('PaymentReq', paymentReqShcema);

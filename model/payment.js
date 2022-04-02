@@ -15,9 +15,9 @@ const paymentShcema = new Shcema({
 		type: String,
 		required: true
 	},
-	date: {
-		type: String,
-		required: true
+	date:{
+		type:String,
+		required:true
 	}
 });
 module.exports = mongoose.model('Payment', paymentShcema);

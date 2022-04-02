@@ -4,10 +4,21 @@ const User = require('../model/user');
 const { validationResult } = require('express-validator');
 const payment = require('../model/payment');
 const { all } = require('../routes/managment');
-const categories={
-	food:0,
-	clothes:0,
-	others:0
+
+const yearandmonths={
+	0:0,
+	1:0,
+	2:0,
+	3:0,
+	4:0,
+	5:0,
+	6:0,
+	7:0,
+	8:0,
+	9:0,
+	10:0,
+	11:0,
+    "year":0
 }
 function sortDate(arraypayments,typedate)
 {
@@ -89,7 +100,6 @@ function sortDateAndValue(arraypayments,typedate,typevalue)
 		})}
 	
 }
-
 //@router post
 //@desc   enter full income
 //@view   public
@@ -205,9 +215,17 @@ exports.addPaymentReq = (req, res, next) => {
 //@desc   get all payments
 // //@view   public
 exports.getpayments= async (req,res,next)=>{
+	const now=new Date()
 	const pay=await User.findById(req.userId).populate("payments");
+	const filter=pay.payments.filter(payment=>{
+		if((new Date(payment.date).getMonth()===now.getMonth()&&new Date(payment.date).getFullYear()!==now.getFullYear())||(new Date(payment.date).getMonth()!==now.getMonth()&&new Date(payment.date).getFullYear()===now.getFullYear()))
+		{console.log(2);return false;}
+		else
+		return true;
+	})
+	
 	res.json({
-		pay:pay.payments
+		pay:filter
 
 	});
 
@@ -216,10 +234,26 @@ exports.getpayments= async (req,res,next)=>{
 //@desc   get all reqapayments
 //@view   public
 exports.getreqpayments = async (req, res, next) => {
+    const now=new Date()
+	const necessorymessage=[];
 	const payreq=await User.findById(req.userId).populate("paymentsReq");
+	// console.log(payreq.paymentsReq)
+	const filter=payreq.paymentsReq.filter(payment=>{
+		
+		if(new Date(payment.date)<now)
+		return false;
+		if(new Date(payment.date)===now&&payment.value!==0)
+		{
+			necessorymessage.push(`you must pay to ${payment.name}`)
+		}
+		else
+		return true;
+
+	})
 	
 	res.json({
-		payreq:payreq.paymentsReq
+		payreq:filter,
+		necessorymessage:necessorymessage
 
 	});
 
@@ -228,20 +262,53 @@ exports.getreqpayments = async (req, res, next) => {
 //@desc   get data for dashboard
 //@view   public
 exports.getdatadashboard=async(req,res,next)=>{
+    
 	let all=[];
+	const necessorymessage=[];
 	const user=await User.findById(req.userId);
 	user.totalPayments=0;
 	const pay=await User.findById(req.userId).populate("payments");
 	const payreq=await User.findById(req.userId).populate("paymentsReq");  
-	
+	const now=new Date();
 	pay.payments.forEach(payment=>{
-		user.totalPayments=user.totalPayments+(+payment.value);
+		if((new Date(payment.date).getMonth()===now.getMonth()&&new Date(payment.date).getFullYear()!==now.getFullYear())||(new Date(payment.date).getMonth()!==now.getMonth()&&new Date(payment.date).getFullYear()===now.getFullYear()))
+	  {;}
+		else 
+	  	user.totalPayments=user.totalPayments+(+payment.value);
+	})
+	// console.log(user.totalPayments)
+	payreq.paymentsReq.forEach(payment=>{
+		
+		
+		if(new Date(payment.date)<now)
+		{;}
+		if(new Date(payment.date)===now&&payment.value!==0)
+		{
+			necessorymessage.push(`you must pay to ${payment.name}`)
+		}
+		else {
+			user.totalPayments=user.totalPayments+(+payment.value);}
 	})
 	user.totalBalance=user.income-user.totalPayments;
 	user.save();
 	// count percent for every category
-	pay.payments.forEach(payment=>{
-	categories[payment.type]=categories[payment.type]+1;
+	const categories={
+		food:0,
+		clothes:0,
+		others:0
+	}
+	yearandmonths["year"]=now.getFullYear();
+	for(u in yearandmonths){
+		pay.payments.forEach(payment=>{
+			if(new Date(payment.date).getFullYear()===now.getFullYear())
+			yearandmonths[new Date(payment.date).getMonth()]+=payment.value;
+		})}
+
+
+
+	yearandmonths[now.getMonth()]=user.totalPayments;
+	pay.payments.forEach(payment=>{ 
+	 categories[payment.type]=categories[payment.type]+1;
 		})
 	// get five by five 
 	pay.payments.sort((a,b)=>{
@@ -261,16 +328,18 @@ exports.getdatadashboard=async(req,res,next)=>{
     all.push({
 		totalBalance:user.totalBalance,
 		totalPayments:user.totalPayments,
-		income:user.income
+		income:user.income,
+	
 	});
 	all.push(categories);
 	all.push(pay.payments.slice(0,5))
 	all.push(payreq.paymentsReq.slice(0,5))
 	
-	res.json({dash:all});
-
-
+	res.json({dash:all,necessorymessage:necessorymessage,yearandmonths:yearandmonths});
 }
+//@router post
+//@desc   get filtered paym
+//@view   public
 exports.filterPayments=async (req,res,next)=>{
 	const user=await User.findById(req.userId);
 	const pay=await User.findById(req.userId).populate("payments");
@@ -325,6 +394,9 @@ exports.filterPayments=async (req,res,next)=>{
 
 
 }
+//@router post
+//@desc   get filtered data
+//@view   public
 exports.filterReqPayments=async (req,res,next)=>{
 	const payreq=await User.findById(req.userId).populate("paymentsReq");
 	const filterbydate=req.body.filterbydate;

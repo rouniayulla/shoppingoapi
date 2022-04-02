@@ -44,5 +44,7 @@ const userShcema = new Shcema({
 		}]
 
 
+},{
+	timestamps:true
 });
 module.exports = mongoose.model('User', userShcema);

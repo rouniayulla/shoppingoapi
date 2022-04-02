@@ -26,6 +26,6 @@ app.use('/managment', managmentRoute);
 
 mongoose.connect(process.env.MONGODB_URI, (result) => {
 	app.listen(process.env.PORT, () => {
-		console.log(`heeeey i am on port ${process.env.PORT} `);
+		console.log(`you are stupied ${process.env.PORT} `);
 	});
 });

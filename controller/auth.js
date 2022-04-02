@@ -61,6 +61,7 @@ exports.signup = (req, res, next) => {
 };
 
 /////////////////////////////////////LOGIN controlller///////////////////////////////////////
+
 exports.login = (req, res, next) => {
 	const error = validationResult(req);
 	console.log(error);
